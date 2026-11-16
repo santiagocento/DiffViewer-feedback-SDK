@@ -6,6 +6,7 @@ import CloudKit
 import CryptoKit
 import Foundation
 import ImageIO
+import OSLog
 import Swift
 import UniformTypeIdentifiers
 import _Concurrency
@@ -24,6 +25,140 @@ public actor CloudKitFeedbackTransport : DiffViewerFeedbackCore::FeedbackTranspo
 public enum FeedbackCaptureURL {
   public static let scheme: Swift::String
   public static func matches(_ url: Foundation::URL, projectID: Swift::String) -> Swift::Bool
+}
+public struct FeedbackRect : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var x: Swift::Double
+  public var y: Swift::Double
+  public var width: Swift::Double
+  public var height: Swift::Double
+  public init(x: Swift::Double, y: Swift::Double, width: Swift::Double, height: Swift::Double)
+  public init(_ rect: CoreFoundation::CGRect)
+  public var cgRect: CoreFoundation::CGRect {
+    get
+  }
+  public static func == (a: DiffViewerFeedbackCore::FeedbackRect, b: DiffViewerFeedbackCore::FeedbackRect) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public struct FeedbackImageMapping : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var sourceRect: DiffViewerFeedbackCore::FeedbackRect
+  public var pixelWidth: Swift::Int
+  public var pixelHeight: Swift::Int
+  public init(sourceRect: DiffViewerFeedbackCore::FeedbackRect, pixelWidth: Swift::Int, pixelHeight: Swift::Int)
+  public func pixels(for frame: DiffViewerFeedbackCore::FeedbackRect) -> DiffViewerFeedbackCore::FeedbackRect?
+  public static func == (a: DiffViewerFeedbackCore::FeedbackImageMapping, b: DiffViewerFeedbackCore::FeedbackImageMapping) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public struct FeedbackInterfaceElement : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var ref: Swift::String
+  public var parentRef: Swift::String?
+  public var identifier: Swift::String?
+  public var label: Swift::String?
+  public var role: Swift::String
+  public var isEnabled: Swift::Bool?
+  public var isSelected: Swift::Bool?
+  public var frame: DiffViewerFeedbackCore::FeedbackRect?
+  public init(ref: Swift::String, parentRef: Swift::String? = nil, identifier: Swift::String? = nil, label: Swift::String? = nil, role: Swift::String, isEnabled: Swift::Bool? = nil, isSelected: Swift::Bool? = nil, frame: DiffViewerFeedbackCore::FeedbackRect? = nil)
+  public static func == (a: DiffViewerFeedbackCore::FeedbackInterfaceElement, b: DiffViewerFeedbackCore::FeedbackInterfaceElement) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public enum FeedbackCollectionStatus : Swift::String, Swift::Codable, Swift::Sendable {
+  case complete, partial, empty, unavailable
+  public init?(rawValue: Swift::String)
+  public typealias RawValue = Swift::String
+  public var rawValue: Swift::String {
+    get
+  }
+}
+public struct FeedbackCollectionQuality : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var status: DiffViewerFeedbackCore::FeedbackCollectionStatus
+  public var reasons: [Swift::String]
+  public var visitedCount: Swift::Int
+  public var durationMilliseconds: Swift::Double
+  public init(status: DiffViewerFeedbackCore::FeedbackCollectionStatus, reasons: [Swift::String] = [], visitedCount: Swift::Int = 0, durationMilliseconds: Swift::Double = 0)
+  public static func == (a: DiffViewerFeedbackCore::FeedbackCollectionQuality, b: DiffViewerFeedbackCore::FeedbackCollectionQuality) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public struct FeedbackEnvironment : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var language: Swift::String
+  public var locale: Swift::String
+  public var region: Swift::String?
+  public var appearance: Swift::String
+  public var textSize: Swift::String
+  public var displayScale: Swift::Double
+  public var orientation: Swift::String
+  public init(language: Swift::String, locale: Swift::String, region: Swift::String?, appearance: Swift::String, textSize: Swift::String, displayScale: Swift::Double, orientation: Swift::String)
+  public static func == (a: DiffViewerFeedbackCore::FeedbackEnvironment, b: DiffViewerFeedbackCore::FeedbackEnvironment) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public struct FeedbackBreadcrumb : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var createdAt: Foundation::Date
+  public var category: Swift::String
+  public var name: Swift::String
+  public init(createdAt: Foundation::Date = Date(), category: Swift::String, name: Swift::String)
+  public static func == (a: DiffViewerFeedbackCore::FeedbackBreadcrumb, b: DiffViewerFeedbackCore::FeedbackBreadcrumb) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public struct FeedbackRecognizedText : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var text: Swift::String
+  public var confidence: Swift::Float
+  public var frame: DiffViewerFeedbackCore::FeedbackRect
+  public init(text: Swift::String, confidence: Swift::Float, frame: DiffViewerFeedbackCore::FeedbackRect)
+  public static func == (a: DiffViewerFeedbackCore::FeedbackRecognizedText, b: DiffViewerFeedbackCore::FeedbackRecognizedText) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public struct FeedbackTextRecognition : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public var quality: DiffViewerFeedbackCore::FeedbackCollectionQuality
+  public var regions: [DiffViewerFeedbackCore::FeedbackRecognizedText]
+  public init(quality: DiffViewerFeedbackCore::FeedbackCollectionQuality, regions: [DiffViewerFeedbackCore::FeedbackRecognizedText] = [])
+  public static func == (a: DiffViewerFeedbackCore::FeedbackTextRecognition, b: DiffViewerFeedbackCore::FeedbackTextRecognition) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
+}
+public enum FeedbackScreenshotOrigin : Swift::String, Swift::Codable, Swift::Sendable {
+  case appWindow, systemScreenshotNotification, importedImage
+  public init?(rawValue: Swift::String)
+  public typealias RawValue = Swift::String
+  public var rawValue: Swift::String {
+    get
+  }
+}
+public enum FeedbackContextAssociation : Swift::String, Swift::Codable, Swift::Sendable {
+  case direct, recentReference, unavailable
+  public init?(rawValue: Swift::String)
+  public typealias RawValue = Swift::String
+  public var rawValue: Swift::String {
+    get
+  }
+}
+public struct FeedbackObservation : Swift::Codable, Swift::Equatable, Swift::Sendable {
+  public static let maximumElements: Swift::Int
+  public static let maximumBreadcrumbs: Swift::Int
+  public var capturedAt: Foundation::Date
+  public var elements: [DiffViewerFeedbackCore::FeedbackInterfaceElement]
+  public var quality: DiffViewerFeedbackCore::FeedbackCollectionQuality
+  public var viewport: DiffViewerFeedbackCore::FeedbackRect?
+  public var imageMapping: DiffViewerFeedbackCore::FeedbackImageMapping?
+  public var environment: DiffViewerFeedbackCore::FeedbackEnvironment?
+  public var breadcrumbs: [DiffViewerFeedbackCore::FeedbackBreadcrumb]
+  public var textRecognition: DiffViewerFeedbackCore::FeedbackTextRecognition?
+  public var textExclusionRegions: [DiffViewerFeedbackCore::FeedbackRect]
+  public var textExclusionsComplete: Swift::Bool
+  public var screenshotOrigin: DiffViewerFeedbackCore::FeedbackScreenshotOrigin
+  public var contextAssociation: DiffViewerFeedbackCore::FeedbackContextAssociation
+  public var referenceID: Foundation::UUID?
+  public var referenceAgeSeconds: Swift::Double?
+  public init(capturedAt: Foundation::Date = Date(), elements: [DiffViewerFeedbackCore::FeedbackInterfaceElement] = [], quality: DiffViewerFeedbackCore::FeedbackCollectionQuality = .init(status: .unavailable), viewport: DiffViewerFeedbackCore::FeedbackRect? = nil, imageMapping: DiffViewerFeedbackCore::FeedbackImageMapping? = nil, environment: DiffViewerFeedbackCore::FeedbackEnvironment? = nil, breadcrumbs: [DiffViewerFeedbackCore::FeedbackBreadcrumb] = [], textRecognition: DiffViewerFeedbackCore::FeedbackTextRecognition? = nil, textExclusionRegions: [DiffViewerFeedbackCore::FeedbackRect] = [], textExclusionsComplete: Swift::Bool = false, screenshotOrigin: DiffViewerFeedbackCore::FeedbackScreenshotOrigin = .appWindow, contextAssociation: DiffViewerFeedbackCore::FeedbackContextAssociation = .direct, referenceID: Foundation::UUID? = nil, referenceAgeSeconds: Swift::Double? = nil)
+  public func validate() throws
+  public static func == (a: DiffViewerFeedbackCore::FeedbackObservation, b: DiffViewerFeedbackCore::FeedbackObservation) -> Swift::Bool
+  public func encode(to encoder: any Swift::Encoder) throws
+  public init(from decoder: any Swift::Decoder) throws
 }
 public actor FeedbackOutbox {
   public init(directory: Foundation::URL, transport: any DiffViewerFeedbackCore::FeedbackTransport)
@@ -46,7 +181,8 @@ public struct FeedbackRuntimeContext : Swift::Codable, Swift::Equatable, Swift::
   public var navigationTitles: [Swift::String]
   public var accessibilityIdentifiers: [Swift::String]
   public var visibleLabels: [Swift::String]
-  public init(rootViewType: Swift::String, visibleControllerType: Swift::String? = nil, screenTitle: Swift::String? = nil, controllerHierarchy: [Swift::String] = [], navigationTitles: [Swift::String] = [], accessibilityIdentifiers: [Swift::String] = [], visibleLabels: [Swift::String] = [])
+  public var observation: DiffViewerFeedbackCore::FeedbackObservation?
+  public init(rootViewType: Swift::String, visibleControllerType: Swift::String? = nil, screenTitle: Swift::String? = nil, controllerHierarchy: [Swift::String] = [], navigationTitles: [Swift::String] = [], accessibilityIdentifiers: [Swift::String] = [], visibleLabels: [Swift::String] = [], observation: DiffViewerFeedbackCore::FeedbackObservation? = nil)
   public static func == (a: DiffViewerFeedbackCore::FeedbackRuntimeContext, b: DiffViewerFeedbackCore::FeedbackRuntimeContext) -> Swift::Bool
   public func encode(to encoder: any Swift::Encoder) throws
   public init(from decoder: any Swift::Decoder) throws
@@ -178,23 +314,48 @@ public struct ServerFeedbackCredentials : Swift::Codable, Swift::Sendable {
   public func encode(to encoder: any Swift::Encoder) throws
   public init(from decoder: any Swift::Decoder) throws
 }
+public struct ServerFeedbackConnection : Swift::Decodable, Swift::Sendable {
+  public let code: Swift::String
+  public let expiresIn: Swift::Int
+  public let pollInterval: Swift::Int
+  public func approvalURL(serverURL: Foundation::URL) -> Foundation::URL?
+  public init(from decoder: any Swift::Decoder) throws
+}
 public struct ServerFeedbackTransport : DiffViewerFeedbackCore::FeedbackTransport {
   public init(baseURL: Foundation::URL, credentials: DiffViewerFeedbackCore::ServerFeedbackCredentials) throws
   public var outboxNamespace: Swift::String {
     get
   }
   public static func redeem(baseURL: Foundation::URL, code: Swift::String, deviceName: Swift::String, projectID: Swift::String? = nil) async throws -> DiffViewerFeedbackCore::ServerFeedbackCredentials
+  public static func startConnection(baseURL: Foundation::URL, projectID: Swift::String, deviceName: Swift::String) async throws -> DiffViewerFeedbackCore::ServerFeedbackConnection
+  public static func connectionStatus(baseURL: Foundation::URL, connection: DiffViewerFeedbackCore::ServerFeedbackConnection) async throws -> DiffViewerFeedbackCore::ServerFeedbackCredentials?
   public func upload(_ report: DiffViewerFeedbackCore::RuntimeFeedback) async throws
   public func upload(_ report: DiffViewerFeedbackCore::RuntimeFeedback, screenshotData: Foundation::Data?) async throws
   public func fetchReports() async throws -> [DiffViewerFeedbackCore::RuntimeFeedback]
+  public static func validatedServerURL(_ url: Foundation::URL) throws -> Foundation::URL
 }
 public enum ServerFeedbackError : Foundation::LocalizedError, Swift::Equatable, Swift::Sendable {
   case invalidServerURL, projectMismatch, uploadOnly, rejected(Swift::Int)
+  case serverRejected(Swift::Int, code: Swift::String, message: Swift::String)
+  case invalidPairingResponse
+  case invalidConnectionResponse, connectionExpired
+  public var statusCode: Swift::Int? {
+    get
+  }
   public var errorDescription: Swift::String? {
     get
   }
   public static func == (a: DiffViewerFeedbackCore::ServerFeedbackError, b: DiffViewerFeedbackCore::ServerFeedbackError) -> Swift::Bool
 }
+extension DiffViewerFeedbackCore::FeedbackCollectionStatus : Swift::Equatable {}
+extension DiffViewerFeedbackCore::FeedbackCollectionStatus : Swift::Hashable {}
+extension DiffViewerFeedbackCore::FeedbackCollectionStatus : Swift::RawRepresentable {}
+extension DiffViewerFeedbackCore::FeedbackScreenshotOrigin : Swift::Equatable {}
+extension DiffViewerFeedbackCore::FeedbackScreenshotOrigin : Swift::Hashable {}
+extension DiffViewerFeedbackCore::FeedbackScreenshotOrigin : Swift::RawRepresentable {}
+extension DiffViewerFeedbackCore::FeedbackContextAssociation : Swift::Equatable {}
+extension DiffViewerFeedbackCore::FeedbackContextAssociation : Swift::Hashable {}
+extension DiffViewerFeedbackCore::FeedbackContextAssociation : Swift::RawRepresentable {}
 extension DiffViewerFeedbackCore::FeedbackScreenshotError : Swift::Hashable {}
 extension DiffViewerFeedbackCore::RuntimeFeedbackKind : Swift::Equatable {}
 extension DiffViewerFeedbackCore::RuntimeFeedbackKind : Swift::Hashable {}
